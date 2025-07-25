@@ -1,18 +1,18 @@
 const User = require("../models/User");
-const ErrorResponse = require("../utils/errorResponse"); // Um helper para erros personalizados (opcional, mas recomendado)
+const ErrorResponse = require("../utils/errorResponse"); // A helper for custom errors (optional, but recommended)
 const sendTokenResponse = require("../utils/generateToken");
 
-// @desc    Obter o utilizador atual (quem está logado)
+// @desc    Get the current user (who is logged in)
 // @route   GET /api/users/me
 // @access  Private
 exports.getMe = async (req, res, next) => {
-  // O middleware 'protect' adiciona o utilizador ao objeto req
-  const user = req.user; // req.user já vem populado pelo middleware de autenticação
+  // The 'protect' middleware adds the user to the req object
+  const user = req.user; // req.user is already populated by the authentication middleware
 
   res.status(200).json({ success: true, data: user });
 };
 
-// @desc    Atualizar detalhes do perfil do utilizador
+// @desc    Update user profile details
 // @route   PUT /api/users/updatedetails
 // @access  Private
 exports.updateDetails = async (req, res, next) => {
@@ -29,10 +29,10 @@ exports.updateDetails = async (req, res, next) => {
 
     res.status(200).json({ success: true, data: user });
   } catch (err) {
-    // Lida com erro de email duplicado ou validação
+    // Handles duplicate email or validation error
     if (err.code === 11000) {
-      // Código de erro para chave duplicada (email)
-      return next(new ErrorResponse("O email fornecido já está em uso.", 400));
+      // Error code for duplicate key (email)
+      return next(new ErrorResponse("The provided email is already in use.", 400));
     }
     if (err.name === "ValidationError") {
       const messages = Object.values(err.errors).map((val) => val.message);
@@ -42,30 +42,30 @@ exports.updateDetails = async (req, res, next) => {
   }
 };
 
-// @desc    Atualizar senha do utilizador
+// @desc    Update user password
 // @route   PUT /api/users/updatepassword
 // @access  Private
 exports.updatePassword = async (req, res, next) => {
-  const user = await User.findById(req.user.id).select("+password"); // Seleciona a senha para comparação
+  const user = await User.findById(req.user.id).select("+password"); // Selects the password for comparison
 
   if (!(await user.matchPassword(req.body.currentPassword))) {
-    return next(new ErrorResponse("A senha atual está incorreta", 401));
+    return next(new ErrorResponse("Current password is incorrect", 401));
   }
 
   user.password = req.body.newPassword;
-  await user.save(); // O middleware 'pre-save' cuidará do hashing da nova senha
+  await user.save(); // The 'pre-save' middleware will handle hashing the new password
 
-  sendTokenResponse(user, 200, res); // Gera um novo token após a troca de senha (segurança)
+  sendTokenResponse(user, 200, res); // Generates a new token after password change (security)
 };
 
-// --- Funções para Admin (Opcional, mas útil) ---
+// --- Admin Functions (Optional, but useful) ---
 
-// @desc    Obter todos os utilizadores (apenas para Admin)
+// @desc    Get all users (Admin only)
 // @route   GET /api/users
 // @access  Private (Admin)
 exports.getUsers = async (req, res, next) => {
   try {
-    // Implemente paginação, filtros e ordenação aqui se desejar
+    // Implement pagination, filters, and sorting here if desired
     const users = await User.find();
     res.status(200).json({ success: true, count: users.length, data: users });
   } catch (err) {
@@ -73,7 +73,7 @@ exports.getUsers = async (req, res, next) => {
   }
 };
 
-// @desc    Obter um utilizador por ID (apenas para Admin)
+// @desc    Get a user by ID (Admin only)
 // @route   GET /api/users/:id
 // @access  Private (Admin)
 exports.getUser = async (req, res, next) => {
@@ -82,7 +82,7 @@ exports.getUser = async (req, res, next) => {
     if (!user) {
       return next(
         new ErrorResponse(
-          `Utilizador com ID ${req.params.id} não encontrado`,
+          `User with ID ${req.params.id} not found`,
           404
         )
       );
@@ -90,22 +90,22 @@ exports.getUser = async (req, res, next) => {
     res.status(200).json({ success: true, data: user });
   } catch (err) {
     if (err instanceof mongoose.CastError && err.path === "_id") {
-      return next(new ErrorResponse("ID de utilizador inválido", 400));
+      return next(new ErrorResponse("Invalid user ID", 400));
     }
     next(err);
   }
 };
 
-// @desc    Criar utilizador (apenas para Admin)
+// @desc    Create user (Admin only)
 // @route   POST /api/users
 // @access  Private (Admin)
 exports.createUser = async (req, res, next) => {
   try {
-    const user = await User.create(req.body); // A senha será hashed pelo middleware 'pre-save'
+    const user = await User.create(req.body); // The password will be hashed by the 'pre-save' middleware
     res.status(201).json({ success: true, data: user });
   } catch (err) {
     if (err.code === 11000) {
-      return next(new ErrorResponse("O email fornecido já está em uso.", 400));
+      return next(new ErrorResponse("The provided email is already in use.", 400));
     }
     if (err.name === "ValidationError") {
       const messages = Object.values(err.errors).map((val) => val.message);
@@ -115,7 +115,7 @@ exports.createUser = async (req, res, next) => {
   }
 };
 
-// @desc    Atualizar utilizador (apenas para Admin)
+// @desc    Update user (Admin only)
 // @route   PUT /api/users/:id
 // @access  Private (Admin)
 exports.updateUser = async (req, res, next) => {
@@ -128,7 +128,7 @@ exports.updateUser = async (req, res, next) => {
     if (!user) {
       return next(
         new ErrorResponse(
-          `Utilizador com ID ${req.params.id} não encontrado`,
+          `User with ID ${req.params.id} not found`,
           404
         )
       );
@@ -136,7 +136,7 @@ exports.updateUser = async (req, res, next) => {
     res.status(200).json({ success: true, data: user });
   } catch (err) {
     if (err.code === 11000) {
-      return next(new ErrorResponse("O email fornecido já está em uso.", 400));
+      return next(new ErrorResponse("The provided email is already in use.", 400));
     }
     if (err.name === "ValidationError") {
       const messages = Object.values(err.errors).map((val) => val.message);
@@ -146,7 +146,7 @@ exports.updateUser = async (req, res, next) => {
   }
 };
 
-// @desc    Excluir utilizador (apenas para Admin)
+// @desc    Delete user (Admin only)
 // @route   DELETE /api/users/:id
 // @access  Private (Admin)
 exports.deleteUser = async (req, res, next) => {
@@ -155,7 +155,7 @@ exports.deleteUser = async (req, res, next) => {
     if (!user) {
       return next(
         new ErrorResponse(
-          `Utilizador com ID ${req.params.id} não encontrado`,
+          `User with ID ${req.params.id} not found`,
           404
         )
       );
