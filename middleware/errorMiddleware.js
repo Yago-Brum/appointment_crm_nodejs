@@ -2,22 +2,21 @@
 const ErrorResponse = require("../utils/errorResponse");
 
 const errorHandler = (err, req, res, next) => {
-  let error = { ...err }; // Copia o erro
+  let error = { ...err }; //copy the error object
+  error.message = err.message; // copy the message from the original error
 
-  error.message = err.message; // Garante que a mensagem seja copiada
-
-  // Log para depuração
+  // Log detailed error information to the console
   console.error(err.stack); // Mostra a pilha de chamadas do erro
 
   // Erro de Mongoose Bad ObjectId
   if (err.name === "CastError" && err.path === "_id") {
-    const message = `Recurso não encontrado com ID de ${err.path} ${err.value}`;
+    const message = `Bad ObjectId: ${err.path} ${err.value}`;
     error = new ErrorResponse(message, 404);
   }
 
   // Erro de Mongoose Duplicate Key
   if (err.code === 11000) {
-    const message = "Campo duplicado inserido";
+    const message = "Duplicate Key";
     error = new ErrorResponse(message, 400);
   }
 

@@ -1,13 +1,12 @@
 const Appointment = require("../models/Appointment");
-const Client = require("../models/Client"); // Pode ser útil para verificar se o cliente existe
+const Client = require("../models/Client"); // verify if this is needed 
 const mongoose = require("mongoose");
 
-// @desc    Obter todos os agendamentos
+// @desc    Get all appointments
 // @route   GET /api/appointments
 // @access  Private (Admin, Employee)
 exports.getAllAppointments = async (req, res) => {
   try {
-    // Popula o campo 'client' para retornar os dados completos do cliente
     const appointments = await Appointment.find().populate(
       "client",
       "name email phone"
@@ -20,7 +19,7 @@ exports.getAllAppointments = async (req, res) => {
   }
 };
 
-// @desc    Obter um agendamento por ID
+// @desc    Get appointment by ID
 // @route   GET /api/appointments/:id
 // @access  Private (Admin, Employee)
 exports.getAppointmentById = async (req, res) => {
@@ -32,33 +31,33 @@ exports.getAppointmentById = async (req, res) => {
     if (!appointment) {
       return res
         .status(404)
-        .json({ success: false, error: "Agendamento não encontrado" });
+        .json({ success: false, error: "Appointment not found" });
     }
     res.status(200).json({ success: true, data: appointment });
   } catch (err) {
-    // Validação de ObjectId inválido
+    // Validate ObjectId invalid
     if (err instanceof mongoose.CastError && err.path === "_id") {
       return res
         .status(400)
-        .json({ success: false, error: "ID de agendamento inválido" });
+        .json({ success: false, error: "Appointment ID invalid" });
     }
     res.status(500).json({ success: false, error: err.message });
   }
 };
 
-// @desc    Criar um novo agendamento
+// @desc    Create a new appointment
 // @route   POST /api/appointments
 // @access  Private (Admin, Employee)
 exports.createAppointment = async (req, res) => {
   try {
     const { client, service, date, startTime, endTime, notes } = req.body;
 
-    // Opcional: Validar se o cliente existe antes de criar o agendamento
+    // validate required fields
     const existingClient = await Client.findById(client);
     if (!existingClient) {
       return res
         .status(404)
-        .json({ success: false, error: "Cliente não encontrado" });
+        .json({ success: false, error: "Client not found" });
     }
 
     const appointment = new Appointment({
@@ -68,13 +67,13 @@ exports.createAppointment = async (req, res) => {
       startTime,
       endTime,
       notes,
-      createdBy: req.user.id, // Assume que o 'protect' middleware adiciona req.user
+      createdBy: req.user.id, // Assuming req.user is populated with the authenticated user's info
     });
 
     const newAppointment = await appointment.save();
     res.status(201).json({ success: true, data: newAppointment });
   } catch (err) {
-    // Lidar com erros de validação do Mongoose
+    // Validate ObjectId invalid
     if (err.name === "ValidationError") {
       const messages = Object.values(err.errors).map((val) => val.message);
       return res.status(400).json({ success: false, error: messages });
@@ -83,7 +82,7 @@ exports.createAppointment = async (req, res) => {
   }
 };
 
-// @desc    Atualizar um agendamento por ID
+// @desc    Update an appointment by ID
 // @route   PUT /api/appointments/:id
 // @access  Private (Admin, Employee)
 exports.updateAppointment = async (req, res) => {
@@ -92,20 +91,20 @@ exports.updateAppointment = async (req, res) => {
     if (!appointment) {
       return res
         .status(404)
-        .json({ success: false, error: "Agendamento não encontrado" });
+        .json({ success: false, error: "Appointment not found" });
     }
 
-    // Se o cliente for atualizado, verificar se o novo cliente existe
+    // Check if the client exists before updating
     if (req.body.client && !(await Client.findById(req.body.client))) {
       return res.status(404).json({
         success: false,
-        error: "Novo cliente para agendamento não encontrado",
+        error: "New cliente not found",
       });
     }
 
     appointment = await Appointment.findByIdAndUpdate(req.params.id, req.body, {
-      new: true, // Retorna o documento atualizado
-      runValidators: true, // Executa as validações do schema
+      new: true, // responses the updated document
+      runValidators: true, // validates the updated document against the schema
     }).populate("client", "name email phone");
 
     res.status(200).json({ success: true, data: appointment });
@@ -113,7 +112,7 @@ exports.updateAppointment = async (req, res) => {
     if (err instanceof mongoose.CastError && err.path === "_id") {
       return res
         .status(400)
-        .json({ success: false, error: "ID de agendamento inválido" });
+        .json({ success: false, error: "Appointment ID invalid" });
     }
     if (err.name === "ValidationError") {
       const messages = Object.values(err.errors).map((val) => val.message);
@@ -123,7 +122,7 @@ exports.updateAppointment = async (req, res) => {
   }
 };
 
-// @desc    Excluir um agendamento por ID
+// @desc    delete an appointment by ID
 // @route   DELETE /api/appointments/:id
 // @access  Private (Admin)
 exports.deleteAppointment = async (req, res) => {
@@ -132,15 +131,15 @@ exports.deleteAppointment = async (req, res) => {
     if (!appointment) {
       return res
         .status(404)
-        .json({ success: false, error: "Agendamento não encontrado" });
+        .json({ success: false, error: "Appointment not found" });
     }
     await appointment.deleteOne(); // Mongoose 6+ usa deleteOne() ou deleteMany()
-    res.status(200).json({ success: true, data: {} }); // Retorna um objeto vazio para indicar sucesso
+    res.status(200).json({ success: true, data: {} }); // return empty object on success
   } catch (err) {
     if (err instanceof mongoose.CastError && err.path === "_id") {
       return res
         .status(400)
-        .json({ success: false, error: "ID de agendamento inválido" });
+        .json({ success: false, error: "Appointment ID invalid" });
     }
     res.status(500).json({ success: false, error: err.message });
   }
@@ -148,7 +147,7 @@ exports.deleteAppointment = async (req, res) => {
 
 // --- Rotas Adicionais ---
 
-// @desc    Obter agendamentos de um cliente específico
+// @desc    get appointments by client ID
 // @route   GET /api/appointments/client/:clientId
 // @access  Private (Admin, Employee)
 exports.getAppointmentsByClient = async (req, res) => {
@@ -165,13 +164,13 @@ exports.getAppointmentsByClient = async (req, res) => {
     if (err instanceof mongoose.CastError && err.path === "client") {
       return res
         .status(400)
-        .json({ success: false, error: "ID de cliente inválido" });
+        .json({ success: false, error: "Client ID invalid" });
     }
     res.status(500).json({ success: false, error: err.message });
   }
 };
 
-// @desc    Obter agendamentos para o dia atual
+// @desc    get appointments for today
 // @route   GET /api/appointments/today
 // @access  Private (Admin, Employee)
 exports.getAppointmentsForToday = async (req, res) => {
@@ -194,7 +193,7 @@ exports.getAppointmentsForToday = async (req, res) => {
   }
 };
 
-// @desc    Atualizar apenas o status de um agendamento
+// @desc    update appointment status
 // @route   PATCH /api/appointments/:id/status
 // @access  Private (Admin, Employee)
 exports.updateAppointmentStatus = async (req, res) => {
@@ -203,7 +202,7 @@ exports.updateAppointmentStatus = async (req, res) => {
     if (!["scheduled", "completed", "canceled", "no-show"].includes(status)) {
       return res
         .status(400)
-        .json({ success: false, error: "Status inválido fornecido." });
+        .json({ success: false, error: "States invalid." });
     }
 
     const appointment = await Appointment.findByIdAndUpdate(
@@ -215,7 +214,7 @@ exports.updateAppointmentStatus = async (req, res) => {
     if (!appointment) {
       return res
         .status(404)
-        .json({ success: false, error: "Agendamento não encontrado" });
+        .json({ success: false, error: "Appointment not found" });
     }
 
     res.status(200).json({ success: true, data: appointment });
@@ -223,7 +222,7 @@ exports.updateAppointmentStatus = async (req, res) => {
     if (err instanceof mongoose.CastError && err.path === "_id") {
       return res
         .status(400)
-        .json({ success: false, error: "ID de agendamento inválido" });
+        .json({ success: false, error: "invalid appointmet ID" });
     }
     res.status(500).json({ success: false, error: err.message });
   }

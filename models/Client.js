@@ -12,7 +12,7 @@ const clientSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    match: /^\S+@\S+\.\S+$/, // Regex simples para validação de email
+    match: /^\S+@\S+\.\S+$/, 
   },
   phone: {
     type: String,
