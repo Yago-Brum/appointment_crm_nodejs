@@ -36,28 +36,27 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// --- Middleware Mongoose (Hooks) ---
+// --- Mongoose Middleware (Hooks) ---
 
-// crptograph password before saving the user
+// Encrypt password before saving the user
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
-    // only hash the password if it has been modified or is new
+    // Only hash the password if it has been modified or is new
     next();
   }
   const salt = await bcrypt.genSalt(10); // Create a salt with 10 rounds
-  this.password = await bcrypt.hash(this.password, salt); // Hashing da senha
+  this.password = await bcrypt.hash(this.password, salt); // Hash the password
   next();
 });
 
-
-// create a JSON Web Token for the user
+// Create a JSON Web Token for the user
 userSchema.methods.getSignedJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
   });
 };
 
-// compare the entered password with the hashed password in the database
+// Compare the entered password with the hashed password in the database
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

@@ -1,23 +1,23 @@
 const request = require("supertest");
-const app = require("../app"); // Seu arquivo principal do Express
+const app = require("../app"); // Your main Express file
 const mongoose = require("mongoose");
 const User = require("../models/User");
 
-// Antes de todos os testes, conecte-se ao banco de dados de teste (ou limpe-o)
+// Before all tests, connect to the test database (or clean it)
 beforeAll(async () => {
-  // Use um banco de dados de teste separado para evitar sujar o de desenvolvimento
+  // Use a separate test database to avoid polluting the development one
   await mongoose.connect(
     process.env.MONGO_URI_TEST || "mongodb://localhost:27017/crm_test_db",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      // Outras opções para Mongoose 6+ não são mais necessárias
+      // Other options for Mongoose 6+ are no longer necessary
     }
   );
-  await User.deleteMany({}); // Limpe a coleção de usuários antes de cada execução de teste
+  await User.deleteMany({}); // Clean the users collection before each test run
 });
 
-// Depois de todos os testes, desconecte-se
+// After all tests, disconnect
 afterAll(async () => {
   await mongoose.connection.close();
 });
@@ -36,7 +36,7 @@ describe("Auth API", () => {
   });
 
   it("should login an existing user", async () => {
-    // Primeiro, registre um usuário para fazer login
+    // First, register a user to login
     await request(app).post("/api/auth/register").send({
       name: "Login Test",
       email: "login@example.com",
@@ -53,7 +53,7 @@ describe("Auth API", () => {
     expect(res.body).toHaveProperty("token");
   });
 
-  // Testar rota protegida (ex: getMe)
+  // Test protected route (e.g.: getMe)
   it("should get current user profile with valid token", async () => {
     const registerRes = await request(app).post("/api/auth/register").send({
       name: "Profile User",
@@ -64,7 +64,7 @@ describe("Auth API", () => {
 
     const res = await request(app)
       .get("/api/users/me")
-      .set("Cookie", `token=${token}`); // Envia o token como cookie
+      .set("Cookie", `token=${token}`); // Sends the token as a cookie
 
     expect(res.statusCode).toEqual(200);
     expect(res.body).toHaveProperty("success", true);

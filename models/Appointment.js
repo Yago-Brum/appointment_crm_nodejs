@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 const appointmentSchema = new mongoose.Schema({
   client: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Client", // Referência ao modelo Client
+    ref: "Client", // Reference to the Client model
     required: true,
   },
   service: {
-    type: String, // Ou ObjectId, ref: 'Service' se você criar um modelo Service
+    type: String, // Or ObjectId, ref: 'Service' if you create a Service model
     required: true,
     trim: true,
   },
@@ -16,11 +16,11 @@ const appointmentSchema = new mongoose.Schema({
     required: true,
   },
   startTime: {
-    type: String, // Ex: "09:00", ou pode ser Date para maior precisão
+    type: String, // E.g.: "09:00", or can be Date for more precision
     required: true,
   },
   endTime: {
-    type: String, // Ex: "10:00"
+    type: String, // E.g.: "10:00"
     required: true,
   },
   status: {
@@ -33,7 +33,7 @@ const appointmentSchema = new mongoose.Schema({
     trim: true,
   },
   createdBy: {
-    // Quem criou o agendamento no CRM
+    // Who created the appointment in the CRM
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },

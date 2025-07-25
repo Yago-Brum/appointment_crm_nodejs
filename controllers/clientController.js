@@ -1,8 +1,8 @@
-const Client = require("../models/Client"); // Importa o modelo Client
-const ErrorResponse = require("../utils/errorResponse"); // Importa a classe de erro customizada
-const mongoose = require("mongoose"); // Importa o mongoose para verificar erros de CastError (ID inválido)
+const Client = require("../models/Client"); // Imports the Client model
+const ErrorResponse = require("../utils/errorResponse"); // Imports the custom error class
+const mongoose = require("mongoose"); // Imports mongoose to check for CastError (invalid ID)
 
-// @desc    Obter todos os clientes
+// @desc    Get all clients
 // @route   GET /api/clients
 // @access  Private (Admin, Employee)
 exports.getAllClients = async (req, res, next) => {
@@ -14,12 +14,12 @@ exports.getAllClients = async (req, res, next) => {
       data: clients,
     });
   } catch (err) {
-    // Envia o erro para o middleware de tratamento de erros global
+    // Sends the error to the global error handling middleware
     next(err);
   }
 };
 
-// @desc    Obter um cliente por ID
+// @desc    Get a client by ID
 // @route   GET /api/clients/:id
 // @access  Private (Admin, Employee)
 exports.getClientById = async (req, res, next) => {
@@ -27,10 +27,10 @@ exports.getClientById = async (req, res, next) => {
     const client = await Client.findById(req.params.id);
 
     if (!client) {
-      // Se o cliente não for encontrado (ID válido, mas não existe)
+      // If the client is not found (valid ID, but does not exist)
       return next(
         new ErrorResponse(
-          `Cliente não encontrado com ID de ${req.params.id}`,
+          `Client not found with ID ${req.params.id}`,
           404
         )
       );
@@ -41,36 +41,36 @@ exports.getClientById = async (req, res, next) => {
       data: client,
     });
   } catch (err) {
-    // Lida com erro de CastError (ID inválido, ex: formato incorreto)
+    // Handles CastError (invalid ID, e.g., wrong format)
     if (err instanceof mongoose.CastError && err.path === "_id") {
-      return next(new ErrorResponse("ID de cliente inválido", 400));
+      return next(new ErrorResponse("Invalid client ID", 400));
     }
     next(err);
   }
 };
 
-// @desc    Criar um novo cliente
+// @desc    Create a new client
 // @route   POST /api/clients
 // @access  Private (Admin, Employee)
 exports.createClient = async (req, res, next) => {
   try {
-    const client = await Client.create(req.body); // Cria o cliente com os dados do corpo da requisição
+    const client = await Client.create(req.body); // Creates the client with the request body data
 
     res.status(201).json({
       success: true,
       data: client,
     });
   } catch (err) {
-    // Lida com erro de email duplicado (código 11000 do MongoDB)
+    // Handles duplicate email error (MongoDB code 11000)
     if (err.code === 11000) {
       return next(
         new ErrorResponse(
-          "O email fornecido já está registado para outro cliente.",
+          "The provided email is already registered for another client.",
           400
         )
       );
     }
-    // Lida com erros de validação do Mongoose (campos obrigatórios, formato, etc.)
+    // Handles Mongoose validation errors (required fields, format, etc.)
     if (err.name === "ValidationError") {
       const messages = Object.values(err.errors).map((val) => val.message);
       return next(new ErrorResponse(messages.join(", "), 400));
@@ -79,23 +79,23 @@ exports.createClient = async (req, res, next) => {
   }
 };
 
-// @desc    Atualizar um cliente por ID
+// @desc    Update a client by ID
 // @route   PUT /api/clients/:id
 // @access  Private (Admin, Employee)
 exports.updateClient = async (req, res, next) => {
   try {
-    // Encontra e atualiza o cliente. 'new: true' retorna o documento atualizado,
-    // 'runValidators: true' garante que as validações do Schema sejam executadas.
+    // Finds and updates the client. 'new: true' returns the updated document,
+    // 'runValidators: true' ensures Schema validations are run.
     const client = await Client.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
     });
 
     if (!client) {
-      // Se o cliente não for encontrado
+      // If the client is not found
       return next(
         new ErrorResponse(
-          `Cliente não encontrado com ID de ${req.params.id}`,
+          `Client not found with ID ${req.params.id}`,
           404
         )
       );
@@ -106,20 +106,20 @@ exports.updateClient = async (req, res, next) => {
       data: client,
     });
   } catch (err) {
-    // Lida com erro de CastError (ID inválido)
+    // Handles CastError (invalid ID)
     if (err instanceof mongoose.CastError && err.path === "_id") {
-      return next(new ErrorResponse("ID de cliente inválido", 400));
+      return next(new ErrorResponse("Invalid client ID", 400));
     }
-    // Lida com erro de email duplicado
+    // Handles duplicate email error
     if (err.code === 11000) {
       return next(
         new ErrorResponse(
-          "O email fornecido já está registado para outro cliente.",
+          "The provided email is already registered for another client.",
           400
         )
       );
     }
-    // Lida com erros de validação
+    // Handles validation errors
     if (err.name === "ValidationError") {
       const messages = Object.values(err.errors).map((val) => val.message);
       return next(new ErrorResponse(messages.join(", "), 400));
@@ -128,7 +128,7 @@ exports.updateClient = async (req, res, next) => {
   }
 };
 
-// @desc    Excluir um cliente por ID
+// @desc    Delete a client by ID
 // @route   DELETE /api/clients/:id
 // @access  Private (Admin)
 exports.deleteClient = async (req, res, next) => {
@@ -136,26 +136,26 @@ exports.deleteClient = async (req, res, next) => {
     const client = await Client.findById(req.params.id);
 
     if (!client) {
-      // Se o cliente não for encontrado
+      // If the client is not found
       return next(
         new ErrorResponse(
-          `Cliente não encontrado com ID de ${req.params.id}`,
+          `Client not found with ID ${req.params.id}`,
           404
         )
       );
     }
 
-    // Para Mongoose 6+, 'remove()' está depreciado, use 'deleteOne()'
+    // For Mongoose 6+, 'remove()' is deprecated, use 'deleteOne()'
     await client.deleteOne();
 
     res.status(200).json({
       success: true,
-      data: {}, // Retorna um objeto vazio ou uma mensagem de sucesso
+      data: {}, // Returns an empty object or a success message
     });
   } catch (err) {
-    // Lida com erro de CastError (ID inválido)
+    // Handles CastError (invalid ID)
     if (err instanceof mongoose.CastError && err.path === "_id") {
-      return next(new ErrorResponse("ID de cliente inválido", 400));
+      return next(new ErrorResponse("Invalid client ID", 400));
     }
     next(err);
   }
