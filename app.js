@@ -1,54 +1,54 @@
 // server/app.js
 
-require("dotenv").config(); // Carrega as variáveis de ambiente
+require("dotenv").config(); // Load environment variables
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const cookieParser = require("cookie-parser"); // Para ler cookies JWT
+const cookieParser = require("cookie-parser"); // To read JWT cookies
 
-// Importar a função de conexão com o banco de dados
+// Import database connection function
 const connectDB = require("./config/db");
 
-// Importar arquivos de rota
+// Import route files
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const clientRoutes = require("./routes/clientRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
 
-// Importar middlewares personalizados
-const errorHandler = require("./middleware/errorMiddleware"); // Middleware para tratamento de erros global
+// Import custom middlewares
+const errorHandler = require("./middleware/errorMiddleware"); // Global error handling middleware
 
-// Conectar ao banco de dados
+// Connect to database
 connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Conexão com o MongoDB
+// MongoDB connection
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB conectado com sucesso!"))
-  .catch((err) => console.error("Erro de conexão com MongoDB:", err));
+  .then(() => console.log("MongoDB connected successfully!"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 // Middlewares
-app.use(express.json()); // Permite que o Express parseie JSON no corpo das requisições
-app.use(cookieParser()); // Habilita o parsing de cookies
+app.use(express.json()); // Allows Express to parse JSON in request bodies
+app.use(cookieParser()); // Enables cookie parsing
 app.use(
   cors({
-    origin: "http://localhost:3000", // Substitua pela URL do seu frontend em desenvolvimento
-    credentials: true, // Permite que cookies sejam enviados com as requisições
+    origin: "http://localhost:3000", // Replace with your frontend URL in development
+    credentials: true, // Allows cookies to be sent with requests
   })
 );
 
-// Montar as rotas
+// Mount routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/appointments", appointmentRoutes);
 
-// Middleware de tratamento de erros personalizado (DEVE SER O ÚLTIMO MIDDLEWARE!)
+// Custom error handling middleware (MUST BE THE LAST MIDDLEWARE!)
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
