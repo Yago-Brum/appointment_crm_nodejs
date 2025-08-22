@@ -7,16 +7,16 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser"); // To read JWT cookies
 
 // Import database connection function
-const connectDB = require("./config/db");
+const connectDB = require("./frontend/config/db");
 
 // Import route files
-const authRoutes = require("./routes/authRoutes");
-const userRoutes = require("./routes/userRoutes");
-const clientRoutes = require("./routes/clientRoutes");
-const appointmentRoutes = require("./routes/appointmentRoutes");
+const authRoutes = require("./frontend/routes/authRoutes");
+const userRoutes = require("./frontend/routes/userRoutes");
+const clientRoutes = require("./frontend/routes/clientRoutes");
+const appointmentRoutes = require("./frontend/routes/appointmentRoutes");
 
 // Import custom middlewares
-const errorHandler = require("./middleware/errorMiddleware"); // Global error handling middleware
+const errorHandler = require("./frontend/middleware/errorMiddleware"); // Global error handling middleware
 
 // Connect to database
 connectDB();

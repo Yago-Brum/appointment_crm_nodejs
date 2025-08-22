@@ -1,0 +1,115 @@
+.dashboard {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  min-height: 100vh;
+}
+
+.dashboard h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: bold;
+  background-color: #fff;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.summary-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  text-align: center;
+}
+
+.summary-card h3 {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.summary-card p {
+  font-size: 2rem;
+  color: #000;
+  font-weight: bold;
+  margin: 0;
+}
+
+.summary-card span {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.dashboard-details {
+  display: flex;
+  gap: 20px;
+}
+
+.upcoming-appointments,
+.recent-customers {
+  flex: 1;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.upcoming-appointments h3,
+.recent-customers h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.upcoming-appointments p,
+.recent-customers p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.upcoming-appointments ul,
+.recent-customers ul {
+  list-style: none;
+  padding: 0;
+}
+
+.upcoming-appointments li,
+.recent-customers li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+}
+
+.upcoming-appointments li div:first-child,
+.recent-customers li p {
+  font-size: 1rem;
+  color: #333;
+}
+
+.client-name {
+  font-size: 1rem;
+  color: #333;
+  margin: 0;
+  font-weight: normal;
+}
+
+.upcoming-appointments li div:last-child span,
+.recent-customers li span {
+  font-size: 0.875rem;
+  color: #666;
+}
