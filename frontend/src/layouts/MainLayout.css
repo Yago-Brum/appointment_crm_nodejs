@@ -1,0 +1,19 @@
+/* src/layouts/MainLayout.css */
+
+.main-layout-wrapper {
+    display: flex; /* Para alinhar a sidebar e o conteúdo lado a lado */
+    min-height: 100vh; /* Garante que o layout ocupe toda a altura */
+    width: 100%;
+}
+
+.main-content-area {
+    /* Define a margem esquerda para compensar a largura da sidebar */
+    margin-left: 256px; /* DEVE SER IGUAL À LARGURA DA SUA SIDEBAR (ex: 256px ou w-64) */
+    flex-grow: 1; /* Ocupa o restante do espaço horizontal */
+    padding: 1rem; /* O p-4 do Tailwind */
+    overflow-y: auto; /* Permite rolagem apenas do conteúdo principal se ele for muito longo */
+    /* background-color: #f0f2f5; Cor de fundo da sua área de conteúdo */
+}
+
+/* Se você usa Tailwind diretamente no JSX, ficaria assim para o div do conteúdo: */
+/* <div className="ml-64 flex-1 p-4 overflow-auto"> */
